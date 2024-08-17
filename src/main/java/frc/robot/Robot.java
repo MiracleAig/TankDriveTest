@@ -26,10 +26,15 @@ public class Robot extends TimedRobot {
    */
 
    // Constant fields
-  int kFrontLeftMotorID = 0;
-  int kFrontRightMotorID = -1;
-  int kBackRightMotorID = 2;
+  int kFrontLeftMotorID = 4;
+  int kFrontRightMotorID = 2;
+  int kBackRightMotorID = 1;
   int kBackLeftMotorID = 3;
+
+  int kTopRollerMotorID = 6;
+  int kLowerRollerMotorID = 7;
+
+  double topRollerSpeed = 1;
 
   int joystickPortID = 0;
   
@@ -37,17 +42,20 @@ public class Robot extends TimedRobot {
 
 
 
-  CANSparkMax frontLeftMotor = new CANSparkMax(kFrontLeftMotorID, MotorType.kBrushless);
-  CANSparkMax frontRightMotor = new CANSparkMax(kFrontRightMotorID, MotorType.kBrushless);
-  CANSparkMax backRightMotor = new CANSparkMax(kBackRightMotorID, MotorType.kBrushless);
-  CANSparkMax backLeftMotor = new CANSparkMax(kBackLeftMotorID, MotorType.kBrushless);
+  CANSparkMax frontLeftMotor = new CANSparkMax(kFrontLeftMotorID, MotorType.kBrushed);
+  CANSparkMax frontRightMotor = new CANSparkMax(kFrontRightMotorID, MotorType.kBrushed);
+  CANSparkMax backRightMotor = new CANSparkMax(kBackRightMotorID, MotorType.kBrushed);
+  CANSparkMax backLeftMotor = new CANSparkMax(kBackLeftMotorID, MotorType.kBrushed);
 
+
+  CANSparkMax rollerTopMotor = new CANSparkMax(kTopRollerMotorID, MotorType.kBrushed);
+  CANSparkMax rollerBottomMotor = new CANSparkMax(kLowerRollerMotorID, MotorType.kBrushed);
 
   MotorControllerGroup leftSide = new MotorControllerGroup(frontLeftMotor, backLeftMotor);
   MotorControllerGroup rightSide = new MotorControllerGroup(frontRightMotor, backRightMotor);
 
 
-  DifferentialDrive drive = new DifferentialDrive(leftSide, rightSide);
+  DifferentialDrive drive = new DifferentialDrive(rightSide, leftSide);
 
   Joystick driveController = new Joystick(joystickPortID);
 
@@ -61,15 +69,24 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    forwardSpeed = driveController.getRawAxis(1);
-    turnSpeed = driveController.getRawAxis(4);
+    forwardSpeed = driveController.getRawAxis(4);
+    turnSpeed = driveController.getRawAxis(1);
 
-    if(driveController.getRawAxis(1) < deadBand){
+    if(Math.abs(driveController.getRawAxis(4) ) < deadBand){
        forwardSpeed = 0;
     }
 
-    if(driveController.getRawAxis(4) < deadBand){
+    if(Math.abs(driveController.getRawAxis(1)) < deadBand){
       turnSpeed = 0;
+    }
+
+
+    if(driveController.getRawButton(0)){
+      rollerTopMotor.set(topRollerSpeed);
+    }
+
+    if(driveController.getRawButton(0)){
+      rollerBottomMotor.set(topRollerSpeed);
     }
 
     drive.arcadeDrive(forwardSpeed, turnSpeed);
